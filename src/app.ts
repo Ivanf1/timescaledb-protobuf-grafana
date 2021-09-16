@@ -2,9 +2,9 @@ import express from "express";
 
 const app = express();
 
-app.post("/update", (req, res) => {
-  console.log(req.body);
-  res.send();
+app.post("/update", (_, res) => {
+  // console.log(req.body);
+  res.send({ message: "nothing" });
 });
 
 export default app;
