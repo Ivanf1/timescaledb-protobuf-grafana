@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+message DeviceUpdateMsg {
+  string deviceId = 1;
+  repeated SensorUpdateMsg sensor = 2;
+}
+
+message SensorUpdateMsg {
+  string sensorId = 1;
+  oneof value {
+    int32 valueInt = 2;
+    float valueFloat = 3;
+    bool valueBool = 4;
+  }
+}
