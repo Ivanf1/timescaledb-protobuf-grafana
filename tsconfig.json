@@ -21,8 +21,9 @@
     "experimentalDecorators": true,
     "resolveJsonModule": true,
     "baseUrl": ".",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "allowJs": true
   },
   "exclude": ["node_modules", "./src/test"],
-  "include": ["./src/**/*.ts"]
+  "include": ["./src/**/*.ts", "src/protobufClasses/**/*.js"]
 }
