@@ -4,6 +4,7 @@ import { DeviceUpdateMsg } from "./protobufClasses/device/update";
 
 const app = express();
 
+// use .raw() middleware to parse body into Buffer
 app.post("/update", express.raw(), (req: Request, res: Response, next: NextFunction) => {
   try {
     const payload = new Uint8Array(req.body);
@@ -15,14 +16,18 @@ app.post("/update", express.raw(), (req: Request, res: Response, next: NextFunct
 
     const msg = DeviceUpdateMsg.decode(payload);
 
+    console.log(msg);
+
     res.send({ deviceId: msg.deviceId });
   } catch (e) {
     if (e instanceof protobuf.util.ProtocolError) {
       // e.instance holds the so far decoded message with missing required fields
       res.send({ error: "required fields are missing" });
+      console.log("missing fields");
     } else {
       // wire format is invalid
       res.send({ error: "invalid format" });
+      console.log("invalid format");
     }
   }
 });

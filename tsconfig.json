@@ -24,6 +24,6 @@
     "skipLibCheck": true,
     "allowJs": true
   },
-  "exclude": ["node_modules", "./src/test"],
+  "exclude": ["node_modules", "test"],
   "include": ["./src/**/*.ts", "src/protobufClasses/**/*.js"]
 }
