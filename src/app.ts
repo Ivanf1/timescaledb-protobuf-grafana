@@ -10,23 +10,23 @@ app.post("/update", express.raw(), (req: Request, res: Response, next: NextFunct
     const payload = new Uint8Array(req.body);
 
     if (payload.length <= 0) {
-      res.send({ error: "no body" });
+      res.status(400).send({ error: "no body" });
       return next();
     }
 
     const msg = DeviceUpdateMsg.decode(payload);
 
-    console.log(msg);
+    // console.log(msg);
 
     res.send({ deviceId: msg.deviceId });
   } catch (e) {
     if (e instanceof protobuf.util.ProtocolError) {
       // e.instance holds the so far decoded message with missing required fields
-      res.send({ error: "required fields are missing" });
+      res.status(400).send({ error: "required fields are missing" });
       console.log("missing fields");
     } else {
       // wire format is invalid
-      res.send({ error: "invalid format" });
+      res.status(400).send({ error: "invalid format" });
       console.log("invalid format");
     }
   }
