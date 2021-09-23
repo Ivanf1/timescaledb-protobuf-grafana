@@ -13,7 +13,6 @@ CREATE TABLE unit (
 );
 
 CREATE TABLE sensor_data (
-  id SERIAL NOT NULL PRIMARY KEY,
   sensor_id INTEGER NOT NULL REFERENCES sensor(id),
   unit_id INTEGER NOT NULL REFERENCES unit(id),
   value VARCHAR(100) NOT NULL,
