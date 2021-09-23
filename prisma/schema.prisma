@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model device {
+  id     Int      @id @default(autoincrement())
+  sensor sensor[]
+}
+
+model sensor {
+  id          Int           @id @default(autoincrement())
+  device_id   Int
+  device      device        @relation(fields: [device_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sensor_data sensor_data[]
+}
+
+model sensor_data {
+  id        Int      @id @default(autoincrement())
+  sensor_id Int
+  unit_id   Int
+  value     String   @db.VarChar(100)
+  timestmp  DateTime @db.Timestamptz(6)
+  sensor    sensor   @relation(fields: [sensor_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  unit      unit     @relation(fields: [unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model unit {
+  id          Int           @id @default(autoincrement())
+  type        String        @db.VarChar(50)
+  sensor_data sensor_data[]
+}
