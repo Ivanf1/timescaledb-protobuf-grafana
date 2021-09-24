@@ -250,6 +250,7 @@ $root.SensorUpdateMsg = (function() {
      * @property {number|null} [valueInt] SensorUpdateMsg valueInt
      * @property {number|null} [valueFloat] SensorUpdateMsg valueFloat
      * @property {boolean|null} [valueBool] SensorUpdateMsg valueBool
+     * @property {number|Long|null} [time] SensorUpdateMsg time
      */
 
     /**
@@ -299,6 +300,14 @@ $root.SensorUpdateMsg = (function() {
      */
     SensorUpdateMsg.prototype.valueBool = null;
 
+    /**
+     * SensorUpdateMsg time.
+     * @member {number|Long} time
+     * @memberof SensorUpdateMsg
+     * @instance
+     */
+    SensorUpdateMsg.prototype.time = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+
     // OneOf field names bound to virtual getters and setters
     var $oneOfFields;
 
@@ -345,6 +354,8 @@ $root.SensorUpdateMsg = (function() {
             writer.uint32(/* id 3, wireType 5 =*/29).float(message.valueFloat);
         if (message.valueBool != null && Object.hasOwnProperty.call(message, "valueBool"))
             writer.uint32(/* id 4, wireType 0 =*/32).bool(message.valueBool);
+        if (message.time != null && Object.hasOwnProperty.call(message, "time"))
+            writer.uint32(/* id 5, wireType 0 =*/40).int64(message.time);
         return writer;
     };
 
@@ -390,6 +401,9 @@ $root.SensorUpdateMsg = (function() {
                 break;
             case 4:
                 message.valueBool = reader.bool();
+                break;
+            case 5:
+                message.time = reader.int64();
                 break;
             default:
                 reader.skipType(tag & 7);
@@ -449,6 +463,9 @@ $root.SensorUpdateMsg = (function() {
             if (typeof message.valueBool !== "boolean")
                 return "valueBool: boolean expected";
         }
+        if (message.time != null && message.hasOwnProperty("time"))
+            if (!$util.isInteger(message.time) && !(message.time && $util.isInteger(message.time.low) && $util.isInteger(message.time.high)))
+                return "time: integer|Long expected";
         return null;
     };
 
@@ -472,6 +489,15 @@ $root.SensorUpdateMsg = (function() {
             message.valueFloat = Number(object.valueFloat);
         if (object.valueBool != null)
             message.valueBool = Boolean(object.valueBool);
+        if (object.time != null)
+            if ($util.Long)
+                (message.time = $util.Long.fromValue(object.time)).unsigned = false;
+            else if (typeof object.time === "string")
+                message.time = parseInt(object.time, 10);
+            else if (typeof object.time === "number")
+                message.time = object.time;
+            else if (typeof object.time === "object")
+                message.time = new $util.LongBits(object.time.low >>> 0, object.time.high >>> 0).toNumber();
         return message;
     };
 
@@ -488,8 +514,14 @@ $root.SensorUpdateMsg = (function() {
         if (!options)
             options = {};
         var object = {};
-        if (options.defaults)
+        if (options.defaults) {
             object.sensorId = "";
+            if ($util.Long) {
+                var long = new $util.Long(0, 0, false);
+                object.time = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+            } else
+                object.time = options.longs === String ? "0" : 0;
+        }
         if (message.sensorId != null && message.hasOwnProperty("sensorId"))
             object.sensorId = message.sensorId;
         if (message.valueInt != null && message.hasOwnProperty("valueInt")) {
@@ -507,6 +539,11 @@ $root.SensorUpdateMsg = (function() {
             if (options.oneofs)
                 object.value = "valueBool";
         }
+        if (message.time != null && message.hasOwnProperty("time"))
+            if (typeof message.time === "number")
+                object.time = options.longs === String ? String(message.time) : message.time;
+            else
+                object.time = options.longs === String ? $util.Long.prototype.toString.call(message.time) : options.longs === Number ? new $util.LongBits(message.time.low >>> 0, message.time.high >>> 0).toNumber() : message.time;
         return object;
     };
 

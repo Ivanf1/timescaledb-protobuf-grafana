@@ -1,6 +1,6 @@
 import app from "../../../src/app";
 import request from "supertest";
-import { DeviceUpdateMsg, SensorUpdateMsg } from "../../../src/protobufClasses/device/update";
+import { DeviceUpdateMsg, SensorUpdateMsg } from "../../../src/protobufClasses/sensorData/update";
 
 describe("POST /create with no body", () => {
   it("should respond with error: 'no body'", async () => {

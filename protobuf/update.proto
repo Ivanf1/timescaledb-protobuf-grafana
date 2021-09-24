@@ -11,5 +11,6 @@ message SensorUpdateMsg {
     int32 valueInt = 2;
     float valueFloat = 3;
     bool valueBool = 4;
-  }
+  };
+  int64 time = 5;
 }

@@ -109,6 +109,9 @@ export interface ISensorUpdateMsg {
 
     /** SensorUpdateMsg valueBool */
     valueBool?: (boolean|null);
+
+    /** SensorUpdateMsg time */
+    time?: (number|Long|null);
 }
 
 /** Represents a SensorUpdateMsg. */
@@ -131,6 +134,9 @@ export class SensorUpdateMsg implements ISensorUpdateMsg {
 
     /** SensorUpdateMsg valueBool. */
     public valueBool?: (boolean|null);
+
+    /** SensorUpdateMsg time. */
+    public time: (number|Long);
 
     /** SensorUpdateMsg value. */
     public value?: ("valueInt"|"valueFloat"|"valueBool");

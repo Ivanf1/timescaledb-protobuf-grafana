@@ -1,6 +1,6 @@
 import express, { NextFunction, Request, Response } from "express";
 import protobuf from "protobufjs";
-import { DeviceUpdateMsg } from "../../protobufClasses/device/update";
+import { DeviceUpdateMsg } from "../../protobufClasses/sensorData/update";
 
 const router = express.Router();
 
