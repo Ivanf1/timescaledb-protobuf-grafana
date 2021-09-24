@@ -15,7 +15,7 @@ $root.DeviceUpdateMsg = (function() {
      * Properties of a DeviceUpdateMsg.
      * @exports IDeviceUpdateMsg
      * @interface IDeviceUpdateMsg
-     * @property {string|null} [deviceId] DeviceUpdateMsg deviceId
+     * @property {number|Long|null} [deviceId] DeviceUpdateMsg deviceId
      * @property {Array.<ISensorUpdateMsg>|null} [sensor] DeviceUpdateMsg sensor
      */
 
@@ -37,11 +37,11 @@ $root.DeviceUpdateMsg = (function() {
 
     /**
      * DeviceUpdateMsg deviceId.
-     * @member {string} deviceId
+     * @member {number|Long} deviceId
      * @memberof DeviceUpdateMsg
      * @instance
      */
-    DeviceUpdateMsg.prototype.deviceId = "";
+    DeviceUpdateMsg.prototype.deviceId = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
 
     /**
      * DeviceUpdateMsg sensor.
@@ -76,7 +76,7 @@ $root.DeviceUpdateMsg = (function() {
         if (!writer)
             writer = $Writer.create();
         if (message.deviceId != null && Object.hasOwnProperty.call(message, "deviceId"))
-            writer.uint32(/* id 1, wireType 2 =*/10).string(message.deviceId);
+            writer.uint32(/* id 1, wireType 0 =*/8).uint64(message.deviceId);
         if (message.sensor != null && message.sensor.length)
             for (var i = 0; i < message.sensor.length; ++i)
                 $root.SensorUpdateMsg.encode(message.sensor[i], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
@@ -115,7 +115,7 @@ $root.DeviceUpdateMsg = (function() {
             var tag = reader.uint32();
             switch (tag >>> 3) {
             case 1:
-                message.deviceId = reader.string();
+                message.deviceId = reader.uint64();
                 break;
             case 2:
                 if (!(message.sensor && message.sensor.length))
@@ -158,8 +158,8 @@ $root.DeviceUpdateMsg = (function() {
         if (typeof message !== "object" || message === null)
             return "object expected";
         if (message.deviceId != null && message.hasOwnProperty("deviceId"))
-            if (!$util.isString(message.deviceId))
-                return "deviceId: string expected";
+            if (!$util.isInteger(message.deviceId) && !(message.deviceId && $util.isInteger(message.deviceId.low) && $util.isInteger(message.deviceId.high)))
+                return "deviceId: integer|Long expected";
         if (message.sensor != null && message.hasOwnProperty("sensor")) {
             if (!Array.isArray(message.sensor))
                 return "sensor: array expected";
@@ -185,7 +185,14 @@ $root.DeviceUpdateMsg = (function() {
             return object;
         var message = new $root.DeviceUpdateMsg();
         if (object.deviceId != null)
-            message.deviceId = String(object.deviceId);
+            if ($util.Long)
+                (message.deviceId = $util.Long.fromValue(object.deviceId)).unsigned = true;
+            else if (typeof object.deviceId === "string")
+                message.deviceId = parseInt(object.deviceId, 10);
+            else if (typeof object.deviceId === "number")
+                message.deviceId = object.deviceId;
+            else if (typeof object.deviceId === "object")
+                message.deviceId = new $util.LongBits(object.deviceId.low >>> 0, object.deviceId.high >>> 0).toNumber(true);
         if (object.sensor) {
             if (!Array.isArray(object.sensor))
                 throw TypeError(".DeviceUpdateMsg.sensor: array expected");
@@ -215,9 +222,16 @@ $root.DeviceUpdateMsg = (function() {
         if (options.arrays || options.defaults)
             object.sensor = [];
         if (options.defaults)
-            object.deviceId = "";
+            if ($util.Long) {
+                var long = new $util.Long(0, 0, true);
+                object.deviceId = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+            } else
+                object.deviceId = options.longs === String ? "0" : 0;
         if (message.deviceId != null && message.hasOwnProperty("deviceId"))
-            object.deviceId = message.deviceId;
+            if (typeof message.deviceId === "number")
+                object.deviceId = options.longs === String ? String(message.deviceId) : message.deviceId;
+            else
+                object.deviceId = options.longs === String ? $util.Long.prototype.toString.call(message.deviceId) : options.longs === Number ? new $util.LongBits(message.deviceId.low >>> 0, message.deviceId.high >>> 0).toNumber(true) : message.deviceId;
         if (message.sensor && message.sensor.length) {
             object.sensor = [];
             for (var j = 0; j < message.sensor.length; ++j)
@@ -246,11 +260,12 @@ $root.SensorUpdateMsg = (function() {
      * Properties of a SensorUpdateMsg.
      * @exports ISensorUpdateMsg
      * @interface ISensorUpdateMsg
-     * @property {string|null} [sensorId] SensorUpdateMsg sensorId
+     * @property {number|Long|null} [sensorId] SensorUpdateMsg sensorId
+     * @property {SensorUpdateMsg.Type|null} [type] SensorUpdateMsg type
+     * @property {number|Long|null} [time] SensorUpdateMsg time
      * @property {number|null} [valueInt] SensorUpdateMsg valueInt
      * @property {number|null} [valueFloat] SensorUpdateMsg valueFloat
      * @property {boolean|null} [valueBool] SensorUpdateMsg valueBool
-     * @property {number|Long|null} [time] SensorUpdateMsg time
      */
 
     /**
@@ -270,11 +285,27 @@ $root.SensorUpdateMsg = (function() {
 
     /**
      * SensorUpdateMsg sensorId.
-     * @member {string} sensorId
+     * @member {number|Long} sensorId
      * @memberof SensorUpdateMsg
      * @instance
      */
-    SensorUpdateMsg.prototype.sensorId = "";
+    SensorUpdateMsg.prototype.sensorId = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+
+    /**
+     * SensorUpdateMsg type.
+     * @member {SensorUpdateMsg.Type} type
+     * @memberof SensorUpdateMsg
+     * @instance
+     */
+    SensorUpdateMsg.prototype.type = 0;
+
+    /**
+     * SensorUpdateMsg time.
+     * @member {number|Long} time
+     * @memberof SensorUpdateMsg
+     * @instance
+     */
+    SensorUpdateMsg.prototype.time = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
 
     /**
      * SensorUpdateMsg valueInt.
@@ -299,14 +330,6 @@ $root.SensorUpdateMsg = (function() {
      * @instance
      */
     SensorUpdateMsg.prototype.valueBool = null;
-
-    /**
-     * SensorUpdateMsg time.
-     * @member {number|Long} time
-     * @memberof SensorUpdateMsg
-     * @instance
-     */
-    SensorUpdateMsg.prototype.time = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
 
     // OneOf field names bound to virtual getters and setters
     var $oneOfFields;
@@ -347,15 +370,17 @@ $root.SensorUpdateMsg = (function() {
         if (!writer)
             writer = $Writer.create();
         if (message.sensorId != null && Object.hasOwnProperty.call(message, "sensorId"))
-            writer.uint32(/* id 1, wireType 2 =*/10).string(message.sensorId);
-        if (message.valueInt != null && Object.hasOwnProperty.call(message, "valueInt"))
-            writer.uint32(/* id 2, wireType 0 =*/16).int32(message.valueInt);
-        if (message.valueFloat != null && Object.hasOwnProperty.call(message, "valueFloat"))
-            writer.uint32(/* id 3, wireType 5 =*/29).float(message.valueFloat);
-        if (message.valueBool != null && Object.hasOwnProperty.call(message, "valueBool"))
-            writer.uint32(/* id 4, wireType 0 =*/32).bool(message.valueBool);
+            writer.uint32(/* id 1, wireType 0 =*/8).uint64(message.sensorId);
+        if (message.type != null && Object.hasOwnProperty.call(message, "type"))
+            writer.uint32(/* id 2, wireType 0 =*/16).int32(message.type);
         if (message.time != null && Object.hasOwnProperty.call(message, "time"))
-            writer.uint32(/* id 5, wireType 0 =*/40).int64(message.time);
+            writer.uint32(/* id 3, wireType 0 =*/24).int64(message.time);
+        if (message.valueInt != null && Object.hasOwnProperty.call(message, "valueInt"))
+            writer.uint32(/* id 4, wireType 0 =*/32).int32(message.valueInt);
+        if (message.valueFloat != null && Object.hasOwnProperty.call(message, "valueFloat"))
+            writer.uint32(/* id 5, wireType 5 =*/45).float(message.valueFloat);
+        if (message.valueBool != null && Object.hasOwnProperty.call(message, "valueBool"))
+            writer.uint32(/* id 6, wireType 0 =*/48).bool(message.valueBool);
         return writer;
     };
 
@@ -391,19 +416,22 @@ $root.SensorUpdateMsg = (function() {
             var tag = reader.uint32();
             switch (tag >>> 3) {
             case 1:
-                message.sensorId = reader.string();
+                message.sensorId = reader.uint64();
                 break;
             case 2:
-                message.valueInt = reader.int32();
+                message.type = reader.int32();
                 break;
             case 3:
-                message.valueFloat = reader.float();
+                message.time = reader.int64();
                 break;
             case 4:
-                message.valueBool = reader.bool();
+                message.valueInt = reader.int32();
                 break;
             case 5:
-                message.time = reader.int64();
+                message.valueFloat = reader.float();
+                break;
+            case 6:
+                message.valueBool = reader.bool();
                 break;
             default:
                 reader.skipType(tag & 7);
@@ -442,8 +470,19 @@ $root.SensorUpdateMsg = (function() {
             return "object expected";
         var properties = {};
         if (message.sensorId != null && message.hasOwnProperty("sensorId"))
-            if (!$util.isString(message.sensorId))
-                return "sensorId: string expected";
+            if (!$util.isInteger(message.sensorId) && !(message.sensorId && $util.isInteger(message.sensorId.low) && $util.isInteger(message.sensorId.high)))
+                return "sensorId: integer|Long expected";
+        if (message.type != null && message.hasOwnProperty("type"))
+            switch (message.type) {
+            default:
+                return "type: enum value expected";
+            case 0:
+            case 1:
+                break;
+            }
+        if (message.time != null && message.hasOwnProperty("time"))
+            if (!$util.isInteger(message.time) && !(message.time && $util.isInteger(message.time.low) && $util.isInteger(message.time.high)))
+                return "time: integer|Long expected";
         if (message.valueInt != null && message.hasOwnProperty("valueInt")) {
             properties.value = 1;
             if (!$util.isInteger(message.valueInt))
@@ -463,9 +502,6 @@ $root.SensorUpdateMsg = (function() {
             if (typeof message.valueBool !== "boolean")
                 return "valueBool: boolean expected";
         }
-        if (message.time != null && message.hasOwnProperty("time"))
-            if (!$util.isInteger(message.time) && !(message.time && $util.isInteger(message.time.low) && $util.isInteger(message.time.high)))
-                return "time: integer|Long expected";
         return null;
     };
 
@@ -482,13 +518,24 @@ $root.SensorUpdateMsg = (function() {
             return object;
         var message = new $root.SensorUpdateMsg();
         if (object.sensorId != null)
-            message.sensorId = String(object.sensorId);
-        if (object.valueInt != null)
-            message.valueInt = object.valueInt | 0;
-        if (object.valueFloat != null)
-            message.valueFloat = Number(object.valueFloat);
-        if (object.valueBool != null)
-            message.valueBool = Boolean(object.valueBool);
+            if ($util.Long)
+                (message.sensorId = $util.Long.fromValue(object.sensorId)).unsigned = true;
+            else if (typeof object.sensorId === "string")
+                message.sensorId = parseInt(object.sensorId, 10);
+            else if (typeof object.sensorId === "number")
+                message.sensorId = object.sensorId;
+            else if (typeof object.sensorId === "object")
+                message.sensorId = new $util.LongBits(object.sensorId.low >>> 0, object.sensorId.high >>> 0).toNumber(true);
+        switch (object.type) {
+        case "TEMPERATURE":
+        case 0:
+            message.type = 0;
+            break;
+        case "HUMIDITY":
+        case 1:
+            message.type = 1;
+            break;
+        }
         if (object.time != null)
             if ($util.Long)
                 (message.time = $util.Long.fromValue(object.time)).unsigned = false;
@@ -498,6 +545,12 @@ $root.SensorUpdateMsg = (function() {
                 message.time = object.time;
             else if (typeof object.time === "object")
                 message.time = new $util.LongBits(object.time.low >>> 0, object.time.high >>> 0).toNumber();
+        if (object.valueInt != null)
+            message.valueInt = object.valueInt | 0;
+        if (object.valueFloat != null)
+            message.valueFloat = Number(object.valueFloat);
+        if (object.valueBool != null)
+            message.valueBool = Boolean(object.valueBool);
         return message;
     };
 
@@ -515,7 +568,12 @@ $root.SensorUpdateMsg = (function() {
             options = {};
         var object = {};
         if (options.defaults) {
-            object.sensorId = "";
+            if ($util.Long) {
+                var long = new $util.Long(0, 0, true);
+                object.sensorId = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+            } else
+                object.sensorId = options.longs === String ? "0" : 0;
+            object.type = options.enums === String ? "TEMPERATURE" : 0;
             if ($util.Long) {
                 var long = new $util.Long(0, 0, false);
                 object.time = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
@@ -523,7 +581,17 @@ $root.SensorUpdateMsg = (function() {
                 object.time = options.longs === String ? "0" : 0;
         }
         if (message.sensorId != null && message.hasOwnProperty("sensorId"))
-            object.sensorId = message.sensorId;
+            if (typeof message.sensorId === "number")
+                object.sensorId = options.longs === String ? String(message.sensorId) : message.sensorId;
+            else
+                object.sensorId = options.longs === String ? $util.Long.prototype.toString.call(message.sensorId) : options.longs === Number ? new $util.LongBits(message.sensorId.low >>> 0, message.sensorId.high >>> 0).toNumber(true) : message.sensorId;
+        if (message.type != null && message.hasOwnProperty("type"))
+            object.type = options.enums === String ? $root.SensorUpdateMsg.Type[message.type] : message.type;
+        if (message.time != null && message.hasOwnProperty("time"))
+            if (typeof message.time === "number")
+                object.time = options.longs === String ? String(message.time) : message.time;
+            else
+                object.time = options.longs === String ? $util.Long.prototype.toString.call(message.time) : options.longs === Number ? new $util.LongBits(message.time.low >>> 0, message.time.high >>> 0).toNumber() : message.time;
         if (message.valueInt != null && message.hasOwnProperty("valueInt")) {
             object.valueInt = message.valueInt;
             if (options.oneofs)
@@ -539,11 +607,6 @@ $root.SensorUpdateMsg = (function() {
             if (options.oneofs)
                 object.value = "valueBool";
         }
-        if (message.time != null && message.hasOwnProperty("time"))
-            if (typeof message.time === "number")
-                object.time = options.longs === String ? String(message.time) : message.time;
-            else
-                object.time = options.longs === String ? $util.Long.prototype.toString.call(message.time) : options.longs === Number ? new $util.LongBits(message.time.low >>> 0, message.time.high >>> 0).toNumber() : message.time;
         return object;
     };
 
@@ -557,6 +620,20 @@ $root.SensorUpdateMsg = (function() {
     SensorUpdateMsg.prototype.toJSON = function toJSON() {
         return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
     };
+
+    /**
+     * Type enum.
+     * @name SensorUpdateMsg.Type
+     * @enum {number}
+     * @property {number} TEMPERATURE=0 TEMPERATURE value
+     * @property {number} HUMIDITY=1 HUMIDITY value
+     */
+    SensorUpdateMsg.Type = (function() {
+        var valuesById = {}, values = Object.create(valuesById);
+        values[valuesById[0] = "TEMPERATURE"] = 0;
+        values[valuesById[1] = "HUMIDITY"] = 1;
+        return values;
+    })();
 
     return SensorUpdateMsg;
 })();

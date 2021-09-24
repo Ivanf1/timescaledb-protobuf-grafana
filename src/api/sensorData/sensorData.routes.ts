@@ -1,11 +1,12 @@
 import express, { NextFunction, Request, Response } from "express";
 import protobuf from "protobufjs";
 import { DeviceUpdateMsg } from "../../protobufClasses/sensorData/update";
+import prisma from "../../db/db";
 
 const router = express.Router();
 
 // use .raw() middleware to parse body into Buffer
-router.post("/create", express.raw(), (req: Request, res: Response, next: NextFunction) => {
+router.post("/create", express.raw(), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const payload = new Uint8Array(req.body);
 
@@ -17,19 +18,40 @@ router.post("/create", express.raw(), (req: Request, res: Response, next: NextFu
 
     const msg = DeviceUpdateMsg.decode(payload);
 
-    res.send({ deviceId: msg.deviceId });
+    for (let sensor of msg.sensor) {
+      if (!Number(sensor.time)) {
+        res.status(400);
+        const error = new Error("invalid message");
+        return next(error);
+      }
+
+      await prisma.sensor_data.create({
+        data: {
+          sensor_id: Number(sensor.sensorId),
+          value: sensor.valueBool
+            ? String(sensor.valueBool)
+            : sensor.valueFloat
+            ? sensor.valueFloat.toString()
+            : sensor.valueInt!.toString(),
+          timestmp: new Date(Number(sensor.time) * 1000),
+          unit_id: sensor.type! + 1,
+        },
+      });
+    }
+
+    res.status(201).end();
   } catch (e) {
+    const error = new Error("server error");
     if (e instanceof protobuf.util.ProtocolError) {
       // e.instance holds the so far decoded message with missing required fields
-      const error = new Error("required fields are missing");
+      error.message = "required fields are missing";
       res.status(400);
-      return next(error);
     } else {
       // wire format is invalid
-      const error = new Error("invalid format");
+      error.message = "invalid format";
       res.status(400);
-      return next(error);
     }
+    return next(error);
   }
 });
 

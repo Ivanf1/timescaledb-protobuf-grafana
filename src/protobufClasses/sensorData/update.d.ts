@@ -3,7 +3,7 @@ import * as $protobuf from "protobufjs";
 export interface IDeviceUpdateMsg {
 
     /** DeviceUpdateMsg deviceId */
-    deviceId?: (string|null);
+    deviceId?: (number|Long|null);
 
     /** DeviceUpdateMsg sensor */
     sensor?: (ISensorUpdateMsg[]|null);
@@ -19,7 +19,7 @@ export class DeviceUpdateMsg implements IDeviceUpdateMsg {
     constructor(properties?: IDeviceUpdateMsg);
 
     /** DeviceUpdateMsg deviceId. */
-    public deviceId: string;
+    public deviceId: (number|Long);
 
     /** DeviceUpdateMsg sensor. */
     public sensor: ISensorUpdateMsg[];
@@ -99,7 +99,13 @@ export class DeviceUpdateMsg implements IDeviceUpdateMsg {
 export interface ISensorUpdateMsg {
 
     /** SensorUpdateMsg sensorId */
-    sensorId?: (string|null);
+    sensorId?: (number|Long|null);
+
+    /** SensorUpdateMsg type */
+    type?: (SensorUpdateMsg.Type|null);
+
+    /** SensorUpdateMsg time */
+    time?: (number|Long|null);
 
     /** SensorUpdateMsg valueInt */
     valueInt?: (number|null);
@@ -109,9 +115,6 @@ export interface ISensorUpdateMsg {
 
     /** SensorUpdateMsg valueBool */
     valueBool?: (boolean|null);
-
-    /** SensorUpdateMsg time */
-    time?: (number|Long|null);
 }
 
 /** Represents a SensorUpdateMsg. */
@@ -124,7 +127,13 @@ export class SensorUpdateMsg implements ISensorUpdateMsg {
     constructor(properties?: ISensorUpdateMsg);
 
     /** SensorUpdateMsg sensorId. */
-    public sensorId: string;
+    public sensorId: (number|Long);
+
+    /** SensorUpdateMsg type. */
+    public type: SensorUpdateMsg.Type;
+
+    /** SensorUpdateMsg time. */
+    public time: (number|Long);
 
     /** SensorUpdateMsg valueInt. */
     public valueInt?: (number|null);
@@ -134,9 +143,6 @@ export class SensorUpdateMsg implements ISensorUpdateMsg {
 
     /** SensorUpdateMsg valueBool. */
     public valueBool?: (boolean|null);
-
-    /** SensorUpdateMsg time. */
-    public time: (number|Long);
 
     /** SensorUpdateMsg value. */
     public value?: ("valueInt"|"valueFloat"|"valueBool");
@@ -210,4 +216,13 @@ export class SensorUpdateMsg implements ISensorUpdateMsg {
      * @returns JSON object
      */
     public toJSON(): { [k: string]: any };
+}
+
+export namespace SensorUpdateMsg {
+
+    /** Type enum. */
+    enum Type {
+        TEMPERATURE = 0,
+        HUMIDITY = 1
+    }
 }
