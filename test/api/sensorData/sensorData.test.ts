@@ -6,7 +6,8 @@ describe("POST /create with no body", () => {
   it("should respond with error: 'no body'", async () => {
     const response = await request(app).post("/api/sensor_data/create").expect(400);
 
-    expect(response.body).toEqual({ error: "no body" });
+    expect(response.body.message).toEqual("no body");
+    expect(response.body.name).toEqual("Error");
   });
 });
 
@@ -27,7 +28,8 @@ describe("POST /create with valid message, valid header but invalid format", () 
       .send(encodedMessage)
       .expect(400);
 
-    expect(response.body).toEqual({ error: "invalid format" });
+    expect(response.body.message).toEqual("invalid format");
+    expect(response.body.name).toEqual("Error");
   });
 });
 
@@ -48,7 +50,8 @@ describe("POST /create with valid message, valid format but invalid header", () 
       .send(encodedMessage)
       .expect(400);
 
-    expect(response.body).toEqual({ error: "no body" });
+    expect(response.body.message).toEqual("no body");
+    expect(response.body.name).toEqual("Error");
   });
 });
 

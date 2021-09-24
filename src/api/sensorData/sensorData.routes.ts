@@ -10,8 +10,9 @@ router.post("/create", express.raw(), (req: Request, res: Response, next: NextFu
     const payload = new Uint8Array(req.body);
 
     if (payload.length <= 0) {
-      res.status(400).send({ error: "no body" });
-      return next();
+      const error = new Error("no body");
+      res.status(400);
+      return next(error);
     }
 
     const msg = DeviceUpdateMsg.decode(payload);
@@ -20,12 +21,14 @@ router.post("/create", express.raw(), (req: Request, res: Response, next: NextFu
   } catch (e) {
     if (e instanceof protobuf.util.ProtocolError) {
       // e.instance holds the so far decoded message with missing required fields
-      res.status(400).send({ error: "required fields are missing" });
-      console.log("missing fields");
+      const error = new Error("required fields are missing");
+      res.status(400);
+      return next(error);
     } else {
       // wire format is invalid
-      res.status(400).send({ error: "invalid format" });
-      console.log("invalid format");
+      const error = new Error("invalid format");
+      res.status(400);
+      return next(error);
     }
   }
 });
