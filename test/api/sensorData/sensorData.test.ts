@@ -104,3 +104,16 @@ describe("POST /create with valid message, valid header and valid format", () =>
       .expect(201);
   });
 });
+
+// describe("POST /create with valid message, valid header and valid format", () => {
+//   it("should respond with status code 201", async () => {
+//     const sensorUpdateMessage = SensorUpdateMsg.create({
+//       sensorId: 1,
+//       valueInt: 32,
+//       time: 1613593780,
+//       type: SensorUpdateMsg.Type.TEMPERATURE,
+//     });
+
+//     expect(response.body).toEqual({ deviceId: deviceUpdateMessage.deviceId });
+//   });
+// });

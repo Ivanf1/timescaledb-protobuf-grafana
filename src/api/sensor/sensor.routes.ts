@@ -14,7 +14,6 @@ router.post("/create", express.json(), async (req: Request, res: Response, next:
     });
     res.status(201).send(sensor);
   } catch (e) {
-    res.status(400);
     return next(e);
   }
 });

@@ -1,5 +1,4 @@
 import express, { NextFunction, Request, Response } from "express";
-import protobuf from "protobufjs";
 import { DeviceUpdateMsg } from "../../protobufClasses/sensorData/update";
 import prisma from "../../db/db";
 
