@@ -86,13 +86,20 @@ describe("POST /create with valid message, valid header and valid format", () =>
     const sensorUpdateMessage = SensorUpdateMsg.create({
       sensorId: 1,
       valueInt: 32,
-      time: 1613593793,
+      time: new Date().getTime() / 1000,
       type: SensorUpdateMsg.Type.TEMPERATURE,
+    });
+
+    const sensorUpdateMessage2 = SensorUpdateMsg.create({
+      sensorId: 1,
+      valueInt: 32,
+      time: new Date().getTime() / 1000,
+      type: SensorUpdateMsg.Type.HUMIDITY,
     });
 
     const deviceUpdateMessage = DeviceUpdateMsg.create({
       deviceId: 1,
-      sensor: [sensorUpdateMessage],
+      sensor: [sensorUpdateMessage, sensorUpdateMessage2],
     });
 
     const encodedMessage = DeviceUpdateMsg.encode(deviceUpdateMessage).finish();
@@ -104,16 +111,3 @@ describe("POST /create with valid message, valid header and valid format", () =>
       .expect(201);
   });
 });
-
-// describe("POST /create with valid message, valid header and valid format", () => {
-//   it("should respond with status code 201", async () => {
-//     const sensorUpdateMessage = SensorUpdateMsg.create({
-//       sensorId: 1,
-//       valueInt: 32,
-//       time: 1613593780,
-//       type: SensorUpdateMsg.Type.TEMPERATURE,
-//     });
-
-//     expect(response.body).toEqual({ deviceId: deviceUpdateMessage.deviceId });
-//   });
-// });

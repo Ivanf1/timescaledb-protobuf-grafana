@@ -27,7 +27,7 @@ model sensor_data {
   timestmp  DateTime @db.Timestamptz(6)
   sensor    sensor   @relation(fields: [sensor_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   unit      unit     @relation(fields: [unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  @@unique([sensor_id, timestmp])
+  @@unique([sensor_id, unit_id, timestmp])
 }
 
 model unit {

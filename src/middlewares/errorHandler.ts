@@ -1,8 +1,3 @@
-import {
-  PrismaClientInitializationError,
-  PrismaClientValidationError,
-} from "@prisma/client/runtime";
-import protobuf from "protobufjs";
 import { Request, Response, NextFunction, ErrorRequestHandler } from "express";
 
 interface CustomError {
@@ -23,17 +18,6 @@ const errorHandler: ErrorRequestHandler = (
     name: error.name,
     message: error.message,
   };
-
-  if (error instanceof PrismaClientValidationError) {
-    customError.message = "request has missing fields";
-    response.status(400);
-  } else if (error instanceof PrismaClientInitializationError) {
-    response.status(500);
-    customError.message = "server error";
-  } else if (error instanceof protobuf.util.ProtocolError) {
-    response.status(400);
-    customError.message = "required fields are missing";
-  }
 
   response.json(customError);
 };

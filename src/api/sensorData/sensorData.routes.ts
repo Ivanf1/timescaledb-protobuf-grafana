@@ -1,5 +1,6 @@
 import express, { NextFunction, Request, Response } from "express";
 import { DeviceUpdateMsg } from "../../protobufClasses/sensorData/update";
+import protobuf from "protobufjs";
 import prisma from "../../db/db";
 
 const router = express.Router();
@@ -16,6 +17,7 @@ router.post("/create", express.raw(), async (req: Request, res: Response, next: 
     }
 
     const msg = DeviceUpdateMsg.decode(payload);
+    const data = [];
 
     for (let sensor of msg.sensor) {
       if (!Number(sensor.time)) {
@@ -24,19 +26,21 @@ router.post("/create", express.raw(), async (req: Request, res: Response, next: 
         return next(error);
       }
 
-      await prisma.sensor_data.create({
-        data: {
-          sensor_id: Number(sensor.sensorId),
-          value: sensor.valueBool
-            ? String(sensor.valueBool)
-            : sensor.valueFloat
-            ? sensor.valueFloat.toString()
-            : sensor.valueInt!.toString(),
-          timestmp: new Date(Number(sensor.time) * 1000),
-          unit_id: sensor.type! + 1,
-        },
+      data.push({
+        sensor_id: Number(sensor.sensorId),
+        value: sensor.valueBool
+          ? String(sensor.valueBool)
+          : sensor.valueFloat
+          ? sensor.valueFloat.toString()
+          : sensor.valueInt!.toString(),
+        timestmp: new Date(Number(sensor.time) * 1000),
+        unit_id: Number(sensor.type!) + 1,
       });
     }
+
+    await prisma.sensor_data.createMany({
+      data: data,
+    });
 
     res.status(201).end();
   } catch (e) {
