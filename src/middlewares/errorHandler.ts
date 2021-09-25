@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction, ErrorRequestHandler } from "express";
 
-interface CustomError {
+interface CustomError extends Error {
   name: string;
   message: string;
 }

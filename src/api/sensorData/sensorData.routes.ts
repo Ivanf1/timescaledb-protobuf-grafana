@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import { DeviceUpdateMsg } from "../../protobufClasses/sensorData/update";
 import protobuf from "protobufjs";
 import prisma from "../../db/db";
+import { Prisma } from ".prisma/client";
 
 const router = express.Router();
 
@@ -17,7 +18,7 @@ router.post("/create", express.raw(), async (req: Request, res: Response, next: 
     }
 
     const msg = DeviceUpdateMsg.decode(payload);
-    const data = [];
+    const data: Array<Prisma.sensor_dataCreateManyInput> = [];
 
     for (let sensor of msg.sensor) {
       if (!Number(sensor.time)) {
